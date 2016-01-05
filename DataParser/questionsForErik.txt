@@ -1,0 +1,6 @@
+Questions for Erik:
+
+-Why do we need a Raspberry Pi as an intermediary for this? Why can't we just connect to a computer?
+-How do you get data? Like if I want to experiment by playing around with a light sensor, how do I do that? Can it read analog?
+-What does time synchronization mean? Is it that we're getting absolute values from when the sensor is turned on?
+-What format are we going to be getting data in? Same as the DHT? (i probably can figure this out?)
