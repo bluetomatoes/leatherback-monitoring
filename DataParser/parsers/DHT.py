@@ -1,6 +1,10 @@
-import re, datetime, utils.parser
+import re, datetime, utils.parser, ntplib
+from time import ctime
 
+c = ntplib.NTPClient()
 
+response = c.request('europe.pool.ntp.org', version=3)
+print ctime(response.tx_time)
 
 class Parser:
 	regex = re.compile(r'#DHT:(\d+),([-+]?\d+\.\d+),([-+]?\d+\.\d+)')

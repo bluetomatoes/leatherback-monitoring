@@ -9,17 +9,14 @@ def listSerialPorts():
 	if sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
 		# this is to exclude your current terminal "/dev/tty"
 		ports = glob.glob('/dev/tty[A-Za-z]*')
-
 		print "OS Detected: Linux"
 
 	elif sys.platform.startswith('darwin'):
 		ports = glob.glob('/dev/tty.*')
-
 		print "OS Detected: Darwin"
 
 	elif sys.platform.startswith('win'):
 		ports = ['COM' + str(i + 1) for i in range(256)]
-
 		print "OS Detected: Windows"
 
 	else:
