@@ -67,24 +67,18 @@ print fileshort
 sensorNames = {
 	0:"DHT"
 }
-kmldir = directory+"/kml/"
-csvdir = directory+"/csv/"
-webdir = directory+"/web/"
 
-if not os.path.exists(kmldir):
-	os.mkdir(kmldir)
+csvdir = directory+"/csv/"
+
+
 if not os.path.exists(csvdir):
 	os.mkdir(csvdir)
-if not os.path.exists(webdir):
-	os.mkdir(webdir)
 
 dht = open(csvdir+sensorNames[0]+".csv", "w")
 dht.write("Time,temperature (C),humidity\n")
 
 combined = open(csvdir+"combined.csv", "w")
-combined.write("Time(ms),temperature,pressure,LP,LPState,PPM\n")
-
-
+combined.write("Time(ms),temperature,\n")
 
 posVec = [0,0,0]
 data = []
@@ -96,40 +90,18 @@ startTime = datetime.datetime.now()
 lasttime = 0
 
 def logCombined():
-	combined.write(str(parser.millis) + "," + str(lastTemp) + "," + str(lastPressure) + "," + str(lastLP) + "," + str(lastLPState) + "," + str(lastPPM) + '\n')
+	combined.write(str(parser.millis) + "," + str(lastTemp) + "," + str(lastHumidity) + '\n')
 
 i=0
 for line in log.readlines():
 	line = line.strip()
 	i += 1
 	for name, parser in parserList.iteritems():
-
 		if parser.parse(line):
-			#print parser.type.ljust(6) + ": " + line
-			if parser.type == "PRS":
-				lastPressure = parser.pressure
-				#lastTemp = m[2]
-				prs.write(str(parser))
-			elif parser.type == "PPM":
-				lastPPM = parser.PPM
-				ppm.write(str(parser))
-			elif parser.type == "LP":
-				lastLP = parser.LP
-				lastLPState = parser.LPState
-				lp.write(str(parser))
-			elif parser.type == "DHT":
+			if parser.type == "DHT":
 				lastTemp = parser.temperature
 				lastHumidity = parser.humidity
 				dht.write(str(parser))
-			elif parser.type == "GPS":
-				if parser.alt < 300:
-					if lastPressure != 0 and lastLP != 0 and lastPPM != 0 and i>100:
-						data.append([parser.time, (parser.lat, parser.lon, parser.alt), lastPressure, lastLP, lastPPM, lastTemp, lastHumidity])
-					else:
-						print "discarding data point"
-						print [parser.time, (parser.lat, parser.lon, parser.alt), lastPressure, lastLP, lastPPM, lastTemp, lastHumidity]
-				pos.write(str(parser))
-				logCombined()
 			else:
 				print "error parsing: " + line
 
@@ -138,40 +110,6 @@ if data:
 
 else:
 	sys.exit("no GPS points to attatch data to")
-
-
-def createKML(sensorID):
-	kml = simplekml.Kml()
-	chartval = sensorID
-	minimum = min(data,key=lambda item:item[chartval])[chartval]
-	maximum = max(data,key=lambda item:item[chartval])[chartval]
-	if sensorID == 2:
-		maximum = 0.15
-
-	if maximum-minimum != 0:
-		print sensorID, maximum, minimum, (data[0][chartval]-minimum)*(255.0/(maximum-minimum))
-
-	for i in xrange(len(data)-2):
-		linestring = kml.newlinestring()
-		linestring.coords = [data[i][1],data[i+1][1]]
-		if maximum-minimum != 0:
-			color = (data[i][chartval]-minimum)*(255.0/(maximum-minimum))
-		else:
-			color = 0
-		r = color
-		g = 255-color
-		b = 255
-		linestring.style.linestyle.color = "aa%02x%02x%02x" % (b,g,r)
-		linestring.altitudemode = simplekml.AltitudeMode.absolute
-		#linestring.altitudemode = simplekml.AltitudeMode.clamptoground
-		linestring.style.linestyle.width = 10
-
-	kml.save(kmldir+sensorNames[sensorID]+".kml")
-
-
-
-for i in range(2,6):
-	createKML(i)
 
 def createJSON():
 	if data:
