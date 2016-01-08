@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#adapted from https://github.com/widakay/QuadcopterDataParser
+
 import time
 import os
 import sys
@@ -65,7 +67,7 @@ print fileshort
 
 
 sensorNames = {
-	0:"DHT"
+	0:"HTU"
 }
 
 csvdir = directory+"/csv/"
@@ -74,8 +76,8 @@ csvdir = directory+"/csv/"
 if not os.path.exists(csvdir):
 	os.mkdir(csvdir)
 
-dht = open(csvdir+sensorNames[0]+".csv", "w")
-dht.write("Time,temperature (C),humidity\n")
+htu = open(csvdir+sensorNames[0]+".csv", "w")
+htu.write("Time,temperature (C),humidity\n")
 
 combined = open(csvdir+"combined.csv", "w")
 combined.write("Time(ms),temperature,\n")
@@ -98,10 +100,10 @@ for line in log.readlines():
 	i += 1
 	for name, parser in parserList.iteritems():
 		if parser.parse(line):
-			if parser.type == "DHT":
+			if parser.type == "HTU":
 				lastTemp = parser.temperature
 				lastHumidity = parser.humidity
-				dht.write(str(parser))
+				htu.write(str(parser))
 			else:
 				print "error parsing: " + line
 
